@@ -4,8 +4,8 @@ import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Union
 
-from .logger import get_logger
 from .database import get_database
+from .logger import get_logger
 from .memory_db import MemoryDBTool
 
 logger = get_logger(__name__)
@@ -31,7 +31,9 @@ class Tool(ABC):
         """获取工具功能的描述"""
         pass
 
-    def _record_tool_usage(self, operation: str, start_time: float, success: bool = True):
+    def _record_tool_usage(
+        self, operation: str, start_time: float, success: bool = True
+    ):
         """Record tool usage to the database."""
         """将工具使用情况记录到数据库"""
         duration_ms = (time.time() - start_time) * 1000
@@ -82,10 +84,10 @@ class FileTool(Tool):
     def execute(self, **kwargs) -> Union[str, List[str], bool]:
         operation = kwargs.get("operation")
         logger.info(f"Executing file operation: {operation} with args: {kwargs}")
-        
+
         start_time = time.time()
         success = True
-        
+
         try:
             if operation == "read":
                 result = self._read_file(kwargs["path"])
@@ -169,10 +171,10 @@ class CalculatorTool(Tool):
     def execute(self, **kwargs) -> Any:
         operation = kwargs.get("operation")
         logger.info(f"Executing calculator operation: {operation} with args: {kwargs}")
-        
+
         start_time = time.time()
         success = True
-        
+
         try:
             if operation == "add":
                 result = self._add(kwargs["a"], kwargs["b"])
@@ -252,10 +254,10 @@ class WebSearchTool(Tool):
     def execute(self, **kwargs) -> Any:
         query = kwargs.get("query")
         logger.info(f"Executing web search for query: {query}")
-        
+
         start_time = time.time()
         success = True
-        
+
         try:
             if not query:
                 logger.error("Search query is required")
@@ -283,10 +285,10 @@ class PythonCodeTool(Tool):
     def execute(self, **kwargs) -> Any:
         operation = kwargs.get("operation")
         logger.info(f"Executing Python code operation: {operation} with args: {kwargs}")
-        
+
         start_time = time.time()
         success = True
-        
+
         try:
             if operation == "execute":
                 result = self._execute_code(kwargs["code"])
@@ -314,10 +316,10 @@ Prohibited: file I/O, network access, system calls, imports, and dangerous built
         """Safely execute Python code with restricted environment."""
         """在受限环境中安全执行Python代码"""
         logger.debug(f"Executing Python code: {code}")
-        
+
         # Security checks
         self._validate_code_safety(code)
-        
+
         # Create restricted execution environment
         safe_globals = {
             "__builtins__": {
@@ -342,13 +344,13 @@ Prohibited: file I/O, network access, system calls, imports, and dangerous built
                 "zip": zip,
             }
         }
-        
+
         safe_locals = {}
-        
+
         try:
             # Execute the code
             exec(code, safe_globals, safe_locals)
-            
+
             # Return any results from the execution
             if safe_locals:
                 # Return the last variable created or a summary
@@ -357,7 +359,7 @@ Prohibited: file I/O, network access, system calls, imports, and dangerous built
                 return f"Code executed successfully. Result: {result}"
             else:
                 return "Code executed successfully (no return value)"
-                
+
         except Exception as e:
             logger.error(f"Error executing Python code: {str(e)}")
             raise ValueError(f"Error executing Python code: {str(e)}")
@@ -366,10 +368,10 @@ Prohibited: file I/O, network access, system calls, imports, and dangerous built
         """Safely evaluate a Python expression."""
         """安全评估Python表达式"""
         logger.debug(f"Evaluating Python expression: {expression}")
-        
+
         # Security checks
         self._validate_code_safety(expression)
-        
+
         # Create restricted execution environment
         safe_globals = {
             "__builtins__": {
@@ -381,7 +383,7 @@ Prohibited: file I/O, network access, system calls, imports, and dangerous built
                 "len": len,
             }
         }
-        
+
         try:
             result = eval(expression, safe_globals, {})
             logger.debug(f"Expression evaluated: {expression} = {result}")
@@ -415,17 +417,22 @@ Prohibited: file I/O, network access, system calls, imports, and dangerous built
             "__builtins__",
             "__import__",
         ]
-        
+
         for pattern in dangerous_patterns:
             if pattern in code:
                 logger.error(f"Dangerous pattern detected in code: {pattern}")
                 raise ValueError(f"Code contains prohibited pattern: {pattern}")
-        
+
         # Additional checks for specific dangerous constructs
-        if any(keyword in code for keyword in ["while True", "for.*:", "def ", "class ", "lambda "]):
+        if any(
+            keyword in code
+            for keyword in ["while True", "for.*:", "def ", "class ", "lambda "]
+        ):
             logger.error("Complex code constructs not allowed")
-            raise ValueError("Complex code constructs (loops, functions, classes) are not allowed for security")
-        
+            raise ValueError(
+                "Complex code constructs (loops, functions, classes) are not allowed for security"
+            )
+
         # Limit code length to prevent abuse
         if len(code) > 1000:
             logger.error("Code too long")

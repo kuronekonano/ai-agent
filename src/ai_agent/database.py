@@ -7,9 +7,9 @@ import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from tinydb import TinyDB, Query
-from tinydb.storages import JSONStorage
+from tinydb import Query, TinyDB
 from tinydb.middlewares import CachingMiddleware
+from tinydb.storages import JSONStorage
 
 from .logger import get_logger
 
@@ -33,16 +33,16 @@ class DatabaseManager:
         db_dir = os.path.dirname(db_path)
         if db_dir:  # Only create directory if path contains directories
             os.makedirs(db_dir, exist_ok=True)
-        
+
         # Initialize TinyDB with caching for better performance
         self.db = TinyDB(db_path, storage=CachingMiddleware(JSONStorage))
-        
+
         # Define tables
         self.trajectories_table = self.db.table("trajectories")
         self.performance_table = self.db.table("performance")
         self.api_calls_table = self.db.table("api_calls")
         self.tool_usage_table = self.db.table("tool_usage")
-        
+
         logger.info(f"Database initialized at {db_path}")
 
     def save_trajectory(self, trajectory_data: Dict[str, Any]) -> int:
@@ -141,17 +141,17 @@ class DatabaseManager:
         """Get statistics for tool usage."""
         """获取工具使用统计信息"""
         all_usage = self.tool_usage_table.all()
-        
+
         if tool_name:
             all_usage = [u for u in all_usage if u["tool_name"] == tool_name]
-        
+
         if not all_usage:
             return {"total_uses": 0, "success_rate": 0, "avg_duration_ms": 0}
-        
+
         total_uses = len(all_usage)
         successful_uses = sum(1 for u in all_usage if u["success"])
         total_duration = sum(u["duration_ms"] for u in all_usage)
-        
+
         return {
             "total_uses": total_uses,
             "success_rate": successful_uses / total_uses if total_uses > 0 else 0,
@@ -166,15 +166,19 @@ class DatabaseManager:
         performance_stats = self.performance_table.all()
         api_calls = self.api_calls_table.all()
         tool_usage = self.tool_usage_table.all()
-        
+
         # Calculate trajectory statistics
         total_trajectories = len(trajectories)
-        successful_trajectories = sum(1 for t in trajectories if t.get("success", False))
-        
+        successful_trajectories = sum(
+            1 for t in trajectories if t.get("success", False)
+        )
+
         # Calculate API call statistics
         total_api_calls = len(api_calls)
-        successful_api_calls = sum(1 for call in api_calls if call.get("success", False))
-        
+        successful_api_calls = sum(
+            1 for call in api_calls if call.get("success", False)
+        )
+
         # Calculate total tokens and cost
         total_tokens = sum(
             call.get("token_usage", {}).get("total_tokens", 0) for call in api_calls
@@ -182,7 +186,7 @@ class DatabaseManager:
         total_cost = sum(
             call.get("cost", {}).get("total_cost", 0) for call in api_calls
         )
-        
+
         return {
             "trajectories": {
                 "total": total_trajectories,
@@ -197,9 +201,7 @@ class DatabaseManager:
                 "total": total_api_calls,
                 "successful": successful_api_calls,
                 "success_rate": (
-                    successful_api_calls / total_api_calls
-                    if total_api_calls > 0
-                    else 0
+                    successful_api_calls / total_api_calls if total_api_calls > 0 else 0
                 ),
                 "total_tokens": total_tokens,
                 "total_cost": total_cost,

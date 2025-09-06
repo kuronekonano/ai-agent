@@ -2,12 +2,12 @@ import time
 from dataclasses import dataclass
 from typing import Any, Dict
 
+from .database import init_database
 from .logger import get_logger
 from .model import create_client
 from .planner import Planner
 from .tools import ToolRegistry
 from .trajectory import TrajectoryRecorder
-from .database import init_database
 
 logger = get_logger(__name__)
 
@@ -30,7 +30,9 @@ class ReActEngine:
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config  # 配置信息
-        logger.info("Initializing ReActEngine with configuration - 使用配置初始化ReActEngine")
+        logger.info(
+            "Initializing ReActEngine with configuration - 使用配置初始化ReActEngine"
+        )
 
         self.client = create_client(config["openai"])  # AI客户端
         logger.debug("AI client created successfully - AI客户端创建成功")
@@ -40,7 +42,7 @@ class ReActEngine:
 
         self.tool_registry = ToolRegistry()  # 工具注册表
         self.trajectory_recorder = TrajectoryRecorder()  # 轨迹记录器
-        
+
         # Initialize database for metrics persistence
         db_path = config.get("database", {}).get("path", "data/ai_agent_metrics.json")
         self.database = init_database(db_path)
@@ -109,7 +111,9 @@ class ReActEngine:
         logger.debug("Trajectory recording started - 轨迹记录已开始")
 
         while iteration < self.max_iterations:
-            logger.debug(f"Starting iteration {iteration + 1}/{self.max_iterations} - 开始第{iteration + 1}/{self.max_iterations}次迭代")
+            logger.debug(
+                f"Starting iteration {iteration + 1}/{self.max_iterations} - 开始第{iteration + 1}/{self.max_iterations}次迭代"
+            )
 
             if time.time() - start_time > self.timeout_seconds:
                 logger.warning("Agent execution timed out - 代理执行超时")
@@ -145,10 +149,14 @@ class ReActEngine:
         logger.debug("Generated thought prompt - 已生成思考提示")
 
         thought = self.client.chat([{"role": "user", "content": thought_prompt}])
-        logger.debug(f"AI thought generated: {thought[:100]}... - AI思考生成: {thought[:]}...")
+        logger.debug(
+            f"AI thought generated: {thought[:100]}... - AI思考生成: {thought[:]}..."
+        )
 
         action_decision = self.planner.decide_action(thought, self.tool_registry)
-        logger.info(f"Action decided: {action_decision['action']} - 决定执行动作: {action_decision['action']}")
+        logger.info(
+            f"Action decided: {action_decision['action']} - 决定执行动作: {action_decision['action']}"
+        )
 
         if action_decision["action"] == "final_answer":
             observation = "Task completed"
@@ -157,7 +165,9 @@ class ReActEngine:
         else:
             observation = self._execute_action(action_decision)
             result = observation
-            logger.debug(f"Action executed, observation: {observation[:100]}... - 动作执行完成，观察结果: {observation[:]}...")
+            logger.debug(
+                f"Action executed, observation: {observation[:100]}... - 动作执行完成，观察结果: {observation[:]}..."
+            )
 
         step = ReActStep(
             thought=thought,
@@ -177,7 +187,9 @@ class ReActEngine:
         action = action_decision["action"]
         action_input = action_decision["action_input"]
 
-        logger.info(f"Executing action: {action} with input: {action_input} - 执行动作: {action}, 输入: {action_input}")
+        logger.info(
+            f"Executing action: {action} with input: {action_input} - 执行动作: {action}, 输入: {action_input}"
+        )
 
         try:
             tool = self.tool_registry.get_tool(action)
@@ -186,7 +198,9 @@ class ReActEngine:
             logger.info(f"Action {action} executed successfully - 动作{action}执行成功")
             return str(result)
         except Exception as e:
-            logger.error(f"Error executing action {action}: {str(e)} - 执行动作{action}时出错: {str(e)}")
+            logger.error(
+                f"Error executing action {action}: {str(e)} - 执行动作{action}时出错: {str(e)}"
+            )
             return f"Error executing action {action}: {str(e)}"
 
     def _is_task_complete(self, step: ReActStep, current_state: Dict[str, Any]) -> bool:
@@ -219,7 +233,7 @@ class ReActEngine:
         """将当前性能统计信息保存到数据库"""
         try:
             # Get performance tracker from client and save stats
-            if hasattr(self.client, 'performance_tracker'):
+            if hasattr(self.client, "performance_tracker"):
                 self.client.performance_tracker.save_statistics_to_db()
                 logger.debug("Performance statistics saved to database")
         except Exception as e:

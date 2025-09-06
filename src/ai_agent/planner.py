@@ -34,7 +34,9 @@ Think step by step about how to approach this task. Consider what information yo
 
 Your response should be a clear, concise thought process that will help you decide the next action."""
 
-        logger.debug(f"Thought prompt generated, length: {len(prompt)}, content: {prompt}")
+        logger.debug(
+            f"Thought prompt generated, length: {len(prompt)}, content: {prompt}"
+        )
         return prompt
 
     def decide_action(
@@ -44,8 +46,10 @@ Your response should be a clear, concise thought process that will help you deci
         """根据思考过程决定下一步行动"""
         logger.debug("Deciding next action based on thought process")
         # Get detailed tool descriptions for the action prompt
-        detailed_tools = self._format_tools_description(tool_registry.get_available_tools())
-        
+        detailed_tools = self._format_tools_description(
+            tool_registry.get_available_tools()
+        )
+
         action_prompt = f"""Based on your thought process:
 {thought}
 
@@ -65,7 +69,9 @@ Respond in JSON format with:
   "action_input": {{...}}  // parameters for the tool including "operation", or {{"answer": "final answer"}}
 }}"""
 
-        logger.debug(f"Action prompt generated, length: {len(action_prompt)}, content: {action_prompt}")
+        logger.debug(
+            f"Action prompt generated, length: {len(action_prompt)}, content: {action_prompt}"
+        )
         response = self.client.chat([{"role": "user", "content": action_prompt}])
 
         try:
@@ -95,23 +101,26 @@ Respond in JSON format with:
         """Format the tools description for the prompt."""
         """为提示格式化工具描述"""
         from .tools import ToolRegistry
-        
+
         # Create a temporary tool registry to get detailed descriptions
         temp_registry = ToolRegistry()
-        
+
         # Register tools with their detailed descriptions
         if "file" in tools:
             from .tools import FileTool
+
             temp_registry.register_tool("file", FileTool())
-        
+
         if "calculator" in tools:
             from .tools import CalculatorTool
+
             temp_registry.register_tool("calculator", CalculatorTool())
-        
+
         if "web_search" in tools:
             from .tools import WebSearchTool
+
             temp_registry.register_tool("web_search", WebSearchTool())
-        
+
         # Get detailed descriptions from the tools themselves
         descriptions = []
         for tool_name in tools:

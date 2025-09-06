@@ -3,12 +3,12 @@ Memory Database module for long-term memory and event recording using SQLite.
 Provides persistent storage for notes, events, and memories with rich metadata.
 """
 
+import json
 import os
 import sqlite3
-import json
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple, Union
 from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from .logger import get_logger
 
@@ -22,6 +22,7 @@ logger = get_logger(__name__)
 
 class PriorityLevel(Enum):
     """Priority levels for memory records."""
+
     """记忆记录的优先级级别"""
     LOW = "low"
     MEDIUM = "medium"
@@ -31,6 +32,7 @@ class PriorityLevel(Enum):
 
 class Status(Enum):
     """Status values for memory records."""
+
     """记忆记录的状态值"""
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
@@ -51,7 +53,7 @@ class MemoryDBTool:
         db_dir = os.path.dirname(db_path)
         if db_dir:
             os.makedirs(db_dir, exist_ok=True)
-        
+
         self.db_path = db_path
         self._init_database()
         logger.info(f"Memory database initialized at {db_path}")
@@ -61,9 +63,10 @@ class MemoryDBTool:
         """初始化数据库模式"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            
+
             # Create memories table with comprehensive schema
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS memories (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     content TEXT NOT NULL,
@@ -77,15 +80,26 @@ class MemoryDBTool:
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     expires_at TIMESTAMP NULL
                 )
-            """)
-            
+            """
+            )
+
             # Create indexes for better query performance
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_tags ON memories(tags)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_priority ON memories(priority)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_status ON memories(status)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_created ON memories(created_at)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_memories_updated ON memories(updated_at)")
-            
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_memories_tags ON memories(tags)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_memories_priority ON memories(priority)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_memories_status ON memories(status)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_memories_created ON memories(created_at)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_memories_updated ON memories(updated_at)"
+            )
+
             conn.commit()
 
     def execute(self, **kwargs) -> Any:
@@ -93,10 +107,10 @@ class MemoryDBTool:
         """执行内存数据库操作"""
         operation = kwargs.get("operation")
         logger.info(f"Executing memory DB operation: {operation} with args: {kwargs}")
-        
+
         start_time = datetime.now()
         success = True
-        
+
         try:
             if operation == "create":
                 result = self.create_memory(**kwargs)
@@ -169,11 +183,14 @@ Example usage:
 - Update task status: update(id=1, status="completed")
 """
 
-    def _record_tool_usage(self, operation: str, duration_ms: float, success: bool = True):
+    def _record_tool_usage(
+        self, operation: str, duration_ms: float, success: bool = True
+    ):
         """Record tool usage to the metrics database."""
         """将工具使用情况记录到指标数据库"""
         try:
             from .database import get_database
+
             db = get_database()
             db.record_tool_usage("memory_db", operation, duration_ms, success)
             logger.debug(f"Memory DB usage recorded: {operation}")
@@ -186,7 +203,7 @@ Example usage:
         content = kwargs.get("content")
         if not content:
             raise ValueError("Content is required for creating a memory")
-        
+
         # Prepare data for insertion
         tags = json.dumps(kwargs.get("tags", []))
         unique_tag = kwargs.get("unique_tag")
@@ -194,22 +211,34 @@ Example usage:
         status = kwargs.get("status", "pending")
         source = kwargs.get("source", "user_input")
         metadata = json.dumps(kwargs.get("metadata", {}))
-        
+
         # Handle expiration date
         expires_at = kwargs.get("expires_at")
         if expires_at and isinstance(expires_at, str):
             expires_at = datetime.fromisoformat(expires_at)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO memories (content, tags, unique_tag, priority, status, source, metadata, expires_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (content, tags, unique_tag, priority, status, source, metadata, expires_at))
-            
+            """,
+                (
+                    content,
+                    tags,
+                    unique_tag,
+                    priority,
+                    status,
+                    source,
+                    metadata,
+                    expires_at,
+                ),
+            )
+
             memory_id = cursor.lastrowid
             conn.commit()
-            
+
             # Return the created memory
             return self._get_memory_by_id(memory_id)
 
@@ -219,7 +248,7 @@ Example usage:
         memory_id = kwargs.get("id")
         if not memory_id:
             raise ValueError("Memory ID is required")
-        
+
         return self._get_memory_by_id(memory_id)
 
     def _get_memory_by_id(self, memory_id: int) -> Optional[Dict[str, Any]]:
@@ -230,7 +259,7 @@ Example usage:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM memories WHERE id = ?", (memory_id,))
             row = cursor.fetchone()
-            
+
             if row:
                 return self._row_to_dict(row)
             return None
@@ -241,65 +270,65 @@ Example usage:
         memory_id = kwargs.get("id")
         if not memory_id:
             raise ValueError("Memory ID is required for update")
-        
+
         # Check if memory exists
         existing = self._get_memory_by_id(memory_id)
         if not existing:
             return None
-        
+
         # Build update query dynamically based on provided fields
         update_fields = []
         update_values = []
-        
+
         if "content" in kwargs:
             update_fields.append("content = ?")
             update_values.append(kwargs["content"])
-        
+
         if "tags" in kwargs:
             update_fields.append("tags = ?")
             update_values.append(json.dumps(kwargs["tags"]))
-        
+
         if "unique_tag" in kwargs:
             update_fields.append("unique_tag = ?")
             update_values.append(kwargs["unique_tag"])
-        
+
         if "priority" in kwargs:
             update_fields.append("priority = ?")
             update_values.append(kwargs["priority"])
-        
+
         if "status" in kwargs:
             update_fields.append("status = ?")
             update_values.append(kwargs["status"])
-        
+
         if "source" in kwargs:
             update_fields.append("source = ?")
             update_values.append(kwargs["source"])
-        
+
         if "metadata" in kwargs:
             update_fields.append("metadata = ?")
             update_values.append(json.dumps(kwargs["metadata"]))
-        
+
         if "expires_at" in kwargs:
             expires_at = kwargs["expires_at"]
             if expires_at and isinstance(expires_at, str):
                 expires_at = datetime.fromisoformat(expires_at)
             update_fields.append("expires_at = ?")
             update_values.append(expires_at)
-        
+
         # Always update the updated_at timestamp
         update_fields.append("updated_at = CURRENT_TIMESTAMP")
-        
+
         if not update_fields:
             return existing  # No changes to make
-        
+
         update_values.append(memory_id)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             query = f"UPDATE memories SET {', '.join(update_fields)} WHERE id = ?"
             cursor.execute(query, update_values)
             conn.commit()
-            
+
             return self._get_memory_by_id(memory_id)
 
     def delete_memory(self, **kwargs) -> bool:
@@ -308,12 +337,12 @@ Example usage:
         memory_id = kwargs.get("id")
         if not memory_id:
             raise ValueError("Memory ID is required for deletion")
-        
+
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM memories WHERE id = ?", (memory_id,))
             conn.commit()
-            
+
             return cursor.rowcount > 0
 
     def search_memories(self, **kwargs) -> List[Dict[str, Any]]:
@@ -322,20 +351,23 @@ Example usage:
         query = kwargs.get("query")
         if not query:
             raise ValueError("Search query is required")
-        
+
         limit = kwargs.get("limit", 50)
         offset = kwargs.get("offset", 0)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM memories 
                 WHERE content LIKE ? 
                 ORDER BY created_at DESC 
                 LIMIT ? OFFSET ?
-            """, (f"%{query}%", limit, offset))
-            
+            """,
+                (f"%{query}%", limit, offset),
+            )
+
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
     def get_memories_by_tag(self, **kwargs) -> List[Dict[str, Any]]:
@@ -344,20 +376,23 @@ Example usage:
         tag = kwargs.get("tag")
         if not tag:
             raise ValueError("Tag is required")
-        
+
         limit = kwargs.get("limit", 50)
         offset = kwargs.get("offset", 0)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM memories 
                 WHERE tags LIKE ? 
                 ORDER BY created_at DESC 
                 LIMIT ? OFFSET ?
-            """, (f"%{tag}%", limit, offset))
-            
+            """,
+                (f"%{tag}%", limit, offset),
+            )
+
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
     def get_memories_by_time_range(self, **kwargs) -> List[Dict[str, Any]]:
@@ -365,29 +400,32 @@ Example usage:
         """获取特定时间范围内的记忆"""
         start_time = kwargs.get("start_time")
         end_time = kwargs.get("end_time")
-        
+
         if not start_time or not end_time:
             raise ValueError("Both start_time and end_time are required")
-        
+
         # Convert string timestamps to datetime objects if needed
         if isinstance(start_time, str):
             start_time = datetime.fromisoformat(start_time)
         if isinstance(end_time, str):
             end_time = datetime.fromisoformat(end_time)
-        
+
         limit = kwargs.get("limit", 50)
         offset = kwargs.get("offset", 0)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM memories 
                 WHERE created_at BETWEEN ? AND ? 
                 ORDER BY created_at DESC 
                 LIMIT ? OFFSET ?
-            """, (start_time, end_time, limit, offset))
-            
+            """,
+                (start_time, end_time, limit, offset),
+            )
+
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
     def get_memories_by_status(self, **kwargs) -> List[Dict[str, Any]]:
@@ -396,20 +434,23 @@ Example usage:
         status = kwargs.get("status")
         if not status:
             raise ValueError("Status is required")
-        
+
         limit = kwargs.get("limit", 50)
         offset = kwargs.get("offset", 0)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM memories 
                 WHERE status = ? 
                 ORDER BY created_at DESC 
                 LIMIT ? OFFSET ?
-            """, (status, limit, offset))
-            
+            """,
+                (status, limit, offset),
+            )
+
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
     def get_memories_by_priority(self, **kwargs) -> List[Dict[str, Any]]:
@@ -418,20 +459,23 @@ Example usage:
         priority = kwargs.get("priority")
         if not priority:
             raise ValueError("Priority is required")
-        
+
         limit = kwargs.get("limit", 50)
         offset = kwargs.get("offset", 0)
-        
+
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM memories 
                 WHERE priority = ? 
                 ORDER BY created_at DESC 
                 LIMIT ? OFFSET ?
-            """, (priority, limit, offset))
-            
+            """,
+                (priority, limit, offset),
+            )
+
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
     def get_statistics(self) -> Dict[str, Any]:
@@ -439,52 +483,56 @@ Example usage:
         """获取数据库统计信息"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-            
+
             # Total memories
             cursor.execute("SELECT COUNT(*) FROM memories")
             total_memories = cursor.fetchone()[0]
-            
+
             # Memories by status
             cursor.execute("SELECT status, COUNT(*) FROM memories GROUP BY status")
             status_stats = {row[0]: row[1] for row in cursor.fetchall()}
-            
+
             # Memories by priority
             cursor.execute("SELECT priority, COUNT(*) FROM memories GROUP BY priority")
             priority_stats = {row[0]: row[1] for row in cursor.fetchall() if row[0]}
-            
+
             # Recent activity
-            cursor.execute("SELECT COUNT(*) FROM memories WHERE updated_at > datetime('now', '-7 days')")
+            cursor.execute(
+                "SELECT COUNT(*) FROM memories WHERE updated_at > datetime('now', '-7 days')"
+            )
             recent_activity = cursor.fetchone()[0]
-            
+
             return {
                 "total_memories": total_memories,
                 "status_distribution": status_stats,
                 "priority_distribution": priority_stats,
                 "recent_activity_7d": recent_activity,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     def _row_to_dict(self, row: sqlite3.Row) -> Dict[str, Any]:
         """Convert SQLite row to dictionary with proper type conversion."""
         """将SQLite行转换为具有适当类型转换的字典"""
         result = dict(row)
-        
+
         # Parse JSON fields
         if result.get("tags"):
             result["tags"] = json.loads(result["tags"])
         else:
             result["tags"] = []
-            
+
         if result.get("metadata"):
             result["metadata"] = json.loads(result["metadata"])
         else:
             result["metadata"] = {}
-        
+
         # Convert timestamps to ISO format
         for time_field in ["created_at", "updated_at", "expires_at"]:
             if result.get(time_field) and isinstance(result[time_field], str):
-                result[time_field] = datetime.fromisoformat(result[time_field]).isoformat()
-        
+                result[time_field] = datetime.fromisoformat(
+                    result[time_field]
+                ).isoformat()
+
         return result
 
     def close(self):

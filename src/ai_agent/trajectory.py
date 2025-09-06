@@ -3,8 +3,8 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .logger import get_logger
 from .database import get_database
+from .logger import get_logger
 
 logger = get_logger(__name__)
 
