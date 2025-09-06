@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from rich.console import Console
 from rich.markdown import Markdown

@@ -3,15 +3,7 @@ Logging module for AI Agent Framework with colored output and rich formatting.
 Provides structured logging with timestamps, module paths, line numbers, and color coding.
 """
 
-"""
-AI代理框架的日志模块，提供彩色输出和丰富格式。
-提供结构化日志记录，包含时间戳、模块路径、行号和颜色编码。
-"""
-
 import logging
-import os
-import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -19,6 +11,11 @@ from rich.console import Console
 from rich.logging import RichHandler
 from rich.text import Text
 from rich.theme import Theme
+
+"""
+AI代理框架的日志模块，提供彩色输出和丰富格式。
+提供结构化日志记录，包含时间戳、模块路径、行号和颜色编码。
+"""
 
 
 class ColoredFormatter(logging.Formatter):

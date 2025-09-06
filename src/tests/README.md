@@ -61,10 +61,6 @@ pytest -m integration
 # 设置OpenAI API密钥（可选）
 export OPENAI_API_KEY=your-api-key
 export OPENAI_MODEL=gpt-4  # 或留空使用默认值
-
-# 设置Anthropic API密钥（可选）
-export ANTHROPIC_API_KEY=your-api-key
-export ANTHROPIC_MODEL=claude-3-sonnet-20240229
 ```
 
 如果没有设置API密钥，测试会使用mock对象来避免真实的API调用。
@@ -129,7 +125,6 @@ def test_with_fixture(performance_tracker):
 # GitHub Actions示例
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
 ## 故障排除

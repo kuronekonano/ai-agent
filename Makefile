@@ -63,7 +63,7 @@ static_check lint:
 .PHONY: test
 test:
 	@echo "Running unit tests..."
-	$(PYTEST) $(TEST_DIR)
+	cd $(SRC_DIR) && $(PYTEST) tests/
 
 # ----------------------
 # Dependency management

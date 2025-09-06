@@ -5,7 +5,7 @@
 ## ✨ 核心特性
 
 - **ReAct 引擎**: 自主智能体的核心推理和行动循环
-- **多模型支持**: 支持多种 AI 模型（OpenAI、Anthropic 等）
+- **多模型支持**: 支持多种 AI 模型（OpenAI 等）
 - **工具系统**: 可扩展的工具系统，支持文件操作、网络搜索、计算等
 - **轨迹追踪**: 完整的执行历史记录和分析
 - **可视化工具**: CLI 和 notebook 可视化工具
@@ -97,10 +97,6 @@ ai-agent/
 openai:
   api_key: your-openai-api-key
   model: gpt-4
-
-anthropic:
-  api_key: your-anthropic-api-key
-  model: claude-3-sonnet
 
 # 其他配置选项...
 ```

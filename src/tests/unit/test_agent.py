@@ -4,10 +4,7 @@ Unit tests for ReAct agent functionality.
 
 from unittest.mock import Mock, patch
 
-import pytest
-
 from ai_agent.agent import ReActEngine, ReActStep
-from ai_agent.tools import ToolRegistry
 
 
 class TestReActEngine:
@@ -16,7 +13,7 @@ class TestReActEngine:
     def test_initialization(self, mock_config):
         """Test that ReActEngine initializes correctly."""
         with patch("ai_agent.agent.create_client") as mock_create:
-            mock_client = mock_create.return_value
+            mock_create.return_value
 
             engine = ReActEngine(config=mock_config)
 

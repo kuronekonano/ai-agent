@@ -1,8 +1,7 @@
-import json
 import math
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 from .logger import get_logger
 
@@ -63,7 +62,7 @@ class FileTool(Tool):
 
     """文件操作工具"""
 
-    def execute(self, **kwargs) -> Any:
+    def execute(self, **kwargs) -> Union[str, List[str], bool]:
         operation = kwargs.get("operation")
         logger.info(f"Executing file operation: {operation} with args: {kwargs}")
 

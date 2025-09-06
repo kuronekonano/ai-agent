@@ -27,8 +27,8 @@ jobs:
         curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Install dependencies
-      run: uv sync
+    - name: Install dependencies (including dev/test)
+      run: uv sync --group dev
 
     - name: Run static checks (ruff + mypy)
       run: make static_check
@@ -57,7 +57,7 @@ jobs:
         curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Install dependencies
+    - name: Install dependencies (including dev/test)
       run: uv sync --group dev
 
     - name: Run ruff check

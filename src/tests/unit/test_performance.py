@@ -2,8 +2,6 @@
 Unit tests for performance tracking functionality.
 """
 
-import pytest
-
 from ai_agent.performance import PerformanceTracker
 
 
@@ -54,20 +52,10 @@ def test_multiple_api_calls():
         duration_ms=500,
     )
 
-    tracker.record_api_call(
-        provider="anthropic",
-        model="claude-3-sonnet-20240229",
-        endpoint="messages",
-        prompt_tokens=200,
-        completion_tokens=100,
-        duration_ms=800,
-    )
-
     stats = tracker.get_statistics()
     assert stats["total_api_calls"] == 2
     assert stats["total_token_usage"]["total_tokens"] == 450
     assert "openai/gpt-4" in stats["provider_statistics"]
-    assert "anthropic/claude-3-sonnet-20240229" in stats["provider_statistics"]
 
 
 def test_cost_calculation():

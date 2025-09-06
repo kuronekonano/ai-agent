@@ -28,10 +28,7 @@ class TestOpenAIClient:
         mock_openai.return_value = mock_client
 
         client = OpenAIClient(
-            api_key="test_key", 
-            model="gpt-4",
-            temperature=0.7,
-            max_tokens=2000
+            api_key="test_key", model="gpt-4", temperature=0.7, max_tokens=2000
         )
 
         assert client.model == "gpt-4"
@@ -44,16 +41,15 @@ class TestOpenAIClient:
         """Test OpenAI client chat completion."""
         mock_client = Mock()
         mock_openai.return_value = mock_client
-        
+
         # Create a proper Mock with integer values for token usage
         usage_mock = Mock()
         usage_mock.prompt_tokens = 10
         usage_mock.completion_tokens = 5
         usage_mock.total_tokens = 15
-        
+
         mock_client.chat.completions.create.return_value = Mock(
-            choices=[Mock(message=Mock(content="Test response"))],
-            usage=usage_mock
+            choices=[Mock(message=Mock(content="Test response"))], usage=usage_mock
         )
 
         client = OpenAIClient(api_key="test_key", model="gpt-4")
@@ -67,16 +63,15 @@ class TestOpenAIClient:
         """Test OpenAI client text completion."""
         mock_client = Mock()
         mock_openai.return_value = mock_client
-        
+
         # Create a proper Mock with integer values for token usage
         usage_mock = Mock()
         usage_mock.prompt_tokens = 20
         usage_mock.completion_tokens = 10
         usage_mock.total_tokens = 30
-        
+
         mock_client.completions.create.return_value = Mock(
-            choices=[Mock(text="Test completion")],
-            usage=usage_mock
+            choices=[Mock(text="Test completion")], usage=usage_mock
         )
 
         client = OpenAIClient(api_key="test_key", model="gpt-4")
@@ -92,7 +87,7 @@ class TestOpenAIClient:
         mock_openai.return_value = mock_client
 
         client = OpenAIClient(api_key="test_key", model="gpt-4")
-        
+
         # Initially should be empty
         stats = client.get_performance_stats()
         assert stats["total_api_calls"] == 0
@@ -104,14 +99,13 @@ class TestOpenAIClient:
         usage_mock.prompt_tokens = 100
         usage_mock.completion_tokens = 50
         usage_mock.total_tokens = 150
-        
+
         mock_client.chat.completions.create.return_value = Mock(
-            choices=[Mock(message=Mock(content="Test response"))],
-            usage=usage_mock
+            choices=[Mock(message=Mock(content="Test response"))], usage=usage_mock
         )
-        
+
         client.chat([{"role": "user", "content": "Hello"}])
-        
+
         stats = client.get_performance_stats()
         assert stats["total_api_calls"] == 1
         assert stats["total_token_usage"]["total_tokens"] == 150
@@ -121,28 +115,27 @@ class TestOpenAIClient:
         """Test resetting performance statistics."""
         mock_client = Mock()
         mock_openai.return_value = mock_client
-        
+
         # Create a proper Mock with integer values for token usage
         usage_mock = Mock()
         usage_mock.prompt_tokens = 100
         usage_mock.completion_tokens = 50
         usage_mock.total_tokens = 150
-        
+
         mock_client.chat.completions.create.return_value = Mock(
-            choices=[Mock(message=Mock(content="Test response"))],
-            usage=usage_mock
+            choices=[Mock(message=Mock(content="Test response"))], usage=usage_mock
         )
 
         client = OpenAIClient(api_key="test_key", model="gpt-4")
         client.chat([{"role": "user", "content": "Hello"}])
-        
+
         # Verify stats recorded
         stats_before = client.get_performance_stats()
         assert stats_before["total_api_calls"] == 1
-        
+
         # Reset
         client.reset_performance_stats()
-        
+
         # Verify stats cleared
         stats_after = client.get_performance_stats()
         assert stats_after["total_api_calls"] == 0
@@ -156,10 +149,10 @@ class TestCreateClient:
         """Test create_client for OpenAI provider."""
         config = {
             "provider": "openai",
-            "api_key": "test_key", 
+            "api_key": "test_key",
             "model": "gpt-4",
             "temperature": 0.7,
-            "max_tokens": 2000
+            "max_tokens": 2000,
         }
 
         with patch("ai_agent.model.OpenAIClient") as mock_client:
@@ -169,15 +162,12 @@ class TestCreateClient:
                 model="gpt-4",
                 temperature=0.7,
                 max_tokens=2000,
-                base_url=None
+                base_url=None,
             )
 
     def test_create_client_default_provider(self):
         """Test create_client with default provider (OpenAI)."""
-        config = {
-            "api_key": "test_key",
-            "model": "gpt-4"
-        }
+        config = {"api_key": "test_key", "model": "gpt-4"}
 
         with patch("ai_agent.model.OpenAIClient") as mock_client:
             create_client(config)
@@ -185,10 +175,7 @@ class TestCreateClient:
 
     def test_create_client_unsupported_provider(self):
         """Test create_client with unsupported provider."""
-        config = {
-            "provider": "unsupported",
-            "api_key": "test_key"
-        }
+        config = {"provider": "unsupported", "api_key": "test_key"}
 
         with pytest.raises(ValueError, match="Unsupported AI provider"):
             create_client(config)

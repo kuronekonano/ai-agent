@@ -40,18 +40,21 @@ def test_single_run_performance_with_mock():
     with patch("ai_agent.agent.create_client") as mock_create:
         mock_client = mock_create.return_value
         mock_client.chat.return_value = "Test response"
-        
+
         # Mock should return 0 for initial stats, then updated stats after calls
         # Use a simple counter approach
         mock_client._call_counter = 0
-        
+
         def mock_get_performance_stats():
             if mock_client._call_counter == 0:
                 mock_client._call_counter += 1
                 return {"total_api_calls": 0, "total_token_usage": {"total_tokens": 0}}
             else:
-                return {"total_api_calls": 2, "total_token_usage": {"total_tokens": 353}}
-        
+                return {
+                    "total_api_calls": 2,
+                    "total_token_usage": {"total_tokens": 353},
+                }
+
         mock_client.get_performance_stats.side_effect = mock_get_performance_stats
 
         agent = ReActEngine(config=config)
@@ -61,7 +64,7 @@ def test_single_run_performance_with_mock():
         assert initial_stats["total_api_calls"] == 0
 
         # Run a simple task
-        result = agent.run("Say hello")
+        agent.run("Say hello")
 
         # Verify performance stats were recorded
         post_task_stats = agent.get_performance_stats()
@@ -71,7 +74,7 @@ def test_single_run_performance_with_mock():
 
 @pytest.mark.integration
 @pytest.mark.skipif(
-    not os.environ.get("OPENAI_API_KEY") and not os.environ.get("ANTHROPIC_API_KEY"),
+    not os.environ.get("OPENAI_API_KEY"),
     reason="No API keys provided for live testing",
 )
 def test_single_run_performance_live():
@@ -80,12 +83,6 @@ def test_single_run_performance_live():
         "openai": {
             "api_key": os.environ.get("OPENAI_API_KEY"),
             "model": os.environ.get("OPENAI_MODEL"),
-            "temperature": 0.7,
-            "max_tokens": 2000,
-        },
-        "anthropic": {
-            "api_key": os.environ.get("ANTHROPIC_API_KEY"),
-            "model": os.environ.get("ANTHROPIC_MODEL"),
             "temperature": 0.7,
             "max_tokens": 2000,
         },
@@ -111,7 +108,7 @@ def test_single_run_performance_live():
     assert initial_stats["total_api_calls"] == 0
 
     # Run a simple task
-    result = agent.run("Say hello")
+    agent.run("Say hello")
 
     # Verify performance stats were recorded
     post_task_stats = agent.get_performance_stats()

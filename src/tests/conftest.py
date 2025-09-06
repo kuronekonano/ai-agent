@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from ai_agent import ReActEngine, load_config
+from ai_agent import ReActEngine
 from ai_agent.performance import PerformanceTracker
 
 

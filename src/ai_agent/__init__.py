@@ -3,14 +3,8 @@ AI Agent Framework - A modular framework for building autonomous AI agents
 with ReAct (Reasoning + Acting) pattern implementation.
 """
 
-"""
-AI代理框架 - 用于构建自主AI代理的模块化框架
-实现ReAct（推理+行动）模式
-"""
-
 import os
 from pathlib import Path
-
 import yaml
 
 from .agent import ReActEngine
@@ -22,6 +16,11 @@ from .planner import Planner
 from .tools import CalculatorTool, FileTool, ToolRegistry, WebSearchTool
 from .trajectory import Trajectory, TrajectoryRecorder
 from .visualizer import Visualizer
+
+"""
+AI代理框架 - 用于构建自主AI代理的模块化框架
+实现ReAct（推理+行动）模式
+"""
 
 
 def load_config(config_path: str = "config/config.yaml") -> dict:

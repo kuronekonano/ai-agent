@@ -3,17 +3,16 @@ Performance tracking module for AI Agent Framework.
 Provides token counting, API call statistics, and cost calculation.
 """
 
-"""
-AI代理框架的性能跟踪模块。
-提供Token计数、API调用统计和成本计算功能。
-"""
-
-import time
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .logger import get_logger
+
+"""
+AI代理框架的性能跟踪模块。
+提供Token计数、API调用统计和成本计算功能。
+"""
 
 logger = get_logger(__name__)
 
@@ -63,11 +62,6 @@ class PerformanceTracker:
             "gpt-4-turbo": {"input": 0.01, "output": 0.03},
             "gpt-3.5-turbo": {"input": 0.0015, "output": 0.002},
             "deepseek-chat": {"input": 0.00014, "output": 0.00028},
-        },
-        "anthropic": {
-            "claude-3-opus-20240229": {"input": 0.015, "output": 0.075},
-            "claude-3-sonnet-20240229": {"input": 0.003, "output": 0.015},
-            "claude-3-haiku-20240307": {"input": 0.00025, "output": 0.00125},
         },
     }
 

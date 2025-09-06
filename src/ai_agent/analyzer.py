@@ -1,9 +1,8 @@
 import json
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .logger import get_logger
-from .performance import PerformanceTracker
+from .performance import PerformanceTracker, TokenUsage
 from .trajectory import Trajectory, TrajectoryStep
 
 logger = get_logger(__name__)

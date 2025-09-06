@@ -1,9 +1,9 @@
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .logger import get_logger
-from .model import AIClient, create_client
+from .model import create_client
 from .planner import Planner
 from .tools import ToolRegistry
 from .trajectory import TrajectoryRecorder

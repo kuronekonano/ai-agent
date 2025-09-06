@@ -3,8 +3,6 @@ Unit tests for tool functionality.
 """
 
 import os
-import tempfile
-from unittest.mock import patch
 
 import pytest
 
@@ -92,7 +90,7 @@ class TestFileTool:
         # to avoid Windows file locking issues
         import tempfile
         import uuid
-        
+
         tmp_dir = tempfile.gettempdir()
         tmp_path = os.path.join(tmp_dir, f"test_file_{uuid.uuid4().hex}.txt")
 
