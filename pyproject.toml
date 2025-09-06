@@ -37,3 +37,6 @@ disallow_untyped_calls = false
 check_untyped_defs = false
 disable_error_code = ["assignment", "union-attr", "arg-type", "return", "var-annotated", "attr-defined"]
 
+[tool.isort]
+profile = "black"
+
