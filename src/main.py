@@ -2,18 +2,23 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
-from ai_agent import ReActEngine, load_config
+from ai_agent import ReActEngine, Visualizer, load_config, setup_logging
 
 app = typer.Typer()
-console = Console()
+console = Console(force_terminal=True)
 
 
 @app.command()
 def run(task: str = typer.Argument(..., help="The task for the AI agent to execute")):
     """Run the AI agent with a specific task."""
-    console.print(Panel.fit("🤖 AI Agent Framework", title="Welcome"))
+    """使用特定任务运行AI代理"""
+    console.print(Panel.fit("AI Agent Framework", title="Welcome"))
 
     config = load_config()
+
+    # Setup logging
+    setup_logging(config.get("logging", {}))
+
     agent = ReActEngine(config=config)
 
     console.print(f"[bold]Task:[/bold] {task}")
@@ -30,18 +35,64 @@ def run(task: str = typer.Argument(..., help="The task for the AI agent to execu
 @app.command()
 def version():
     """Show the version of the AI agent framework."""
+    """显示AI代理框架的版本"""
     console.print("[bold]AI Agent Framework v0.1.0[/bold]")
 
 
 @app.command()
 def config():
     """Show the current configuration."""
+    """显示当前配置"""
     config = load_config()
     console.print(Panel.fit(str(config), title="Configuration"))
 
 
+@app.command()
+def stats():
+    """Show performance statistics from the last execution."""
+    """显示上次执行的性能统计信息"""
+    config = load_config()
+
+    # Setup logging
+    setup_logging(config.get("logging", {}))
+
+    agent = ReActEngine(config=config)
+
+    try:
+        performance_stats = agent.get_performance_stats()
+        if performance_stats:
+            visualizer = Visualizer()
+            visualizer.show_performance(performance_stats)
+
+            console.print("\n" + "=" * 50)
+            console.print("Detailed Cost Breakdown")
+            console.print("=" * 50)
+            visualizer.show_cost_breakdown(performance_stats)
+        else:
+            console.print(
+                "[yellow]No performance data available. Run a task first.[/yellow]"
+            )
+    except Exception as e:
+        console.print(f"[red]Error retrieving performance stats: {e}[/red]")
+
+
+@app.command()
+def reset_stats():
+    """Reset performance statistics."""
+    """重置性能统计信息"""
+    config = load_config()
+
+    # Setup logging
+    setup_logging(config.get("logging", {}))
+
+    agent = ReActEngine(config=config)
+    agent.reset_performance_stats()
+    console.print("[green]Performance statistics reset successfully[/green]")
+
+
 def main():
     """Main entry point for the AI Agent CLI."""
+    """AI Agent CLI的主入口点"""
     app()
 
 

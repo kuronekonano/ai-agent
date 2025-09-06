@@ -3,7 +3,7 @@
 # OpenAI Configuration
 openai:
   api_key: "your-openai-api-key-here"
-  model: "gpt-4"
+  model: "deepseek-chat"
   temperature: 0.7
   max_tokens: 2000
 

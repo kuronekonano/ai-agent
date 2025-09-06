@@ -9,7 +9,7 @@ UV := uv
 
 # Source and test directories
 SRC_DIR := src
-TEST_DIR := tests
+TEST_DIR := src\tests
 
 # Tools
 BLACK := $(PYTHON) -m black
