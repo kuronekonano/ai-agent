@@ -34,7 +34,7 @@ Think step by step about how to approach this task. Consider what information yo
 
 Your response should be a clear, concise thought process that will help you decide the next action."""
 
-        logger.debug(f"Thought prompt generated, length: {len(prompt)}")
+        logger.debug(f"Thought prompt generated, length: {len(prompt)}, content: {prompt}")
         return prompt
 
     def decide_action(
@@ -43,22 +43,29 @@ Your response should be a clear, concise thought process that will help you deci
         """Decide the next action based on the thought process."""
         """根据思考过程决定下一步行动"""
         logger.debug("Deciding next action based on thought process")
+        # Get detailed tool descriptions for the action prompt
+        detailed_tools = self._format_tools_description(tool_registry.get_available_tools())
+        
         action_prompt = f"""Based on your thought process:
 {thought}
 
 Decide what action to take next. You can choose to:
-1. Use one of the available tools
+1. Use one of the available tools (provide operation and parameters)
 2. Provide a final answer if you have enough information
 
-Available tools: {', '.join(tool_registry.get_available_tools())}
+Available tools with operations:
+{detailed_tools}
+
+When using a tool, you MUST include the "operation" parameter that specifies which operation to perform.
+For example, to read a file: {{"action": "file", "action_input": {{"operation": "read", "path": "filename.txt"}}}}
 
 Respond in JSON format with:
 {{
   "action": "tool_name" or "final_answer",
-  "action_input": {{...}}  // parameters for the tool or {{"answer": "final answer"}}
+  "action_input": {{...}}  // parameters for the tool including "operation", or {{"answer": "final answer"}}
 }}"""
 
-        logger.debug(f"Action prompt generated, length: {len(action_prompt)}")
+        logger.debug(f"Action prompt generated, length: {len(action_prompt)}, content: {action_prompt}")
         response = self.client.chat([{"role": "user", "content": action_prompt}])
 
         try:
@@ -87,18 +94,32 @@ Respond in JSON format with:
     def _format_tools_description(self, tools: List[str]) -> str:
         """Format the tools description for the prompt."""
         """为提示格式化工具描述"""
-        tool_descriptions = {
-            "file": "Read, write, and manipulate files",
-            "calculator": "Perform mathematical calculations",
-            "web_search": "Search the web for information",
-        }
-
+        from .tools import ToolRegistry
+        
+        # Create a temporary tool registry to get detailed descriptions
+        temp_registry = ToolRegistry()
+        
+        # Register tools with their detailed descriptions
+        if "file" in tools:
+            from .tools import FileTool
+            temp_registry.register_tool("file", FileTool())
+        
+        if "calculator" in tools:
+            from .tools import CalculatorTool
+            temp_registry.register_tool("calculator", CalculatorTool())
+        
+        if "web_search" in tools:
+            from .tools import WebSearchTool
+            temp_registry.register_tool("web_search", WebSearchTool())
+        
+        # Get detailed descriptions from the tools themselves
         descriptions = []
-        for tool in tools:
-            if tool in tool_descriptions:
-                descriptions.append(f"{tool}: {tool_descriptions[tool]}")
-            else:
-                descriptions.append(tool)
+        for tool_name in tools:
+            try:
+                tool = temp_registry.get_tool(tool_name)
+                descriptions.append(tool.get_description())
+            except ValueError:
+                descriptions.append(tool_name)
 
         return "\n".join(descriptions)
 

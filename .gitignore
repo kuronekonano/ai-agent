@@ -22,3 +22,9 @@ activate
 # log
 log/
 *.log   
+
+# db
+*.db
+
+# tinydb
+*.json

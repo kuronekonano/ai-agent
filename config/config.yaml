@@ -23,7 +23,7 @@ tools:
 
 # Logging Configuration
 logging:
-  level: "INFO"
+  level: "DEBUG"
   file: "logs/ai_agent.log"
   console_output: true
 

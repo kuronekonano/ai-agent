@@ -100,9 +100,11 @@ venv:
 .PHONY: clean
 clean:
 	@echo "Removing __pycache__ and temporary files..."
-	-find $(SRC_DIR) $(TEST_DIR) -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+	-find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 	-find . -name "*.pyc" -delete 2>/dev/null || true
 	-find . -name "*.pyo" -delete 2>/dev/null || true
+	-find . -name "*.pyi" -delete 2>/dev/null || true
+	-find . -name "*.pyd" -delete 2>/dev/null || true
 
 # ----------------------
 # Release targets

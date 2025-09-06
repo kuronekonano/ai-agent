@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .logger import get_logger
+from .database import get_database
 
 """
 AI代理框架的性能跟踪模块。
@@ -109,6 +110,29 @@ class PerformanceTracker:
         )
 
         self.api_calls.append(record)
+
+        # Save to database
+        try:
+            db = get_database()
+            api_call_data = {
+                "timestamp": timestamp,
+                "provider": provider,
+                "model": model,
+                "endpoint": endpoint,
+                "token_usage": {
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": completion_tokens,
+                    "total_tokens": total_tokens,
+                },
+                "duration_ms": duration_ms,
+                "success": success,
+                "error_message": error_message,
+                "cost": asdict(self.calculate_cost(provider, model, token_usage)),
+            }
+            db.save_api_call(api_call_data)
+            logger.debug("API call saved to database")
+        except Exception as e:
+            logger.error(f"Failed to save API call to database: {str(e)}")
 
         logger.debug(
             f"API call recorded: {provider}/{model} - "
@@ -214,6 +238,17 @@ class PerformanceTracker:
         logger.debug("Resetting performance tracker")
         self.api_calls.clear()
         self.total_token_usage = TokenUsage()
+
+    def save_statistics_to_db(self):
+        """Save current performance statistics to the database."""
+        """将当前性能统计信息保存到数据库"""
+        try:
+            stats = self.get_statistics()
+            db = get_database()
+            db.save_performance_stats(stats)
+            logger.debug("Performance statistics saved to database")
+        except Exception as e:
+            logger.error(f"Failed to save performance statistics to database: {str(e)}")
 
     def export_to_json(self) -> str:
         """Export performance data to JSON format."""

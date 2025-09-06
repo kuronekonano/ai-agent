@@ -51,7 +51,7 @@ def setup_logging(config: Optional[dict] = None) -> logging.Logger:
         Configured logger instance
     """
     if config is None:
-        config = {"level": "INFO", "file": "logs/ai_agent.log", "console_output": True}
+        config = {"level": "DEBUG", "file": "logs/ai_agent.log", "console_output": True}
 
     # Create logs directory if it doesn't exist
     log_file = Path(config.get("file", "logs/ai_agent.log"))

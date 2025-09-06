@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .logger import get_logger
+from .database import get_database
 
 logger = get_logger(__name__)
 
@@ -89,8 +90,8 @@ class TrajectoryRecorder:
         logger.debug(f"Step {step.step_number} recorded: {step.action}")
 
     def complete(self, final_result: str, success: bool = True):
-        """Mark the trajectory as completed."""
-        """标记轨迹为已完成"""
+        """Mark the trajectory as completed and save to database."""
+        """标记轨迹为已完成并保存到数据库"""
         if not self.current_trajectory:
             logger.error("No active trajectory. Call start() first.")
             raise RuntimeError("No active trajectory. Call start() first.")
@@ -104,6 +105,16 @@ class TrajectoryRecorder:
         self.current_trajectory.success = success
         self.current_trajectory.final_result = final_result
         self.current_trajectory.duration_seconds = duration
+
+        # Save to database
+        try:
+            trajectory_dict = self.to_dict()
+            if trajectory_dict:
+                db = get_database()
+                db.save_trajectory(trajectory_dict)
+                logger.debug("Trajectory saved to database")
+        except Exception as e:
+            logger.error(f"Failed to save trajectory to database: {str(e)}")
 
         logger.info(
             f"Trajectory completed: success={success}, steps={self.current_trajectory.total_steps}, duration={duration:.2f}s"
