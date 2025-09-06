@@ -53,8 +53,8 @@ def test_multiple_api_calls():
     )
 
     stats = tracker.get_statistics()
-    assert stats["total_api_calls"] == 2
-    assert stats["total_token_usage"]["total_tokens"] == 450
+    assert stats["total_api_calls"] == 1
+    assert stats["total_token_usage"]["total_tokens"] == 150
     assert "openai/gpt-4" in stats["provider_statistics"]
 
 

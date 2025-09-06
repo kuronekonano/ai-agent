@@ -96,7 +96,9 @@ class TrajectoryRecorder:
             raise RuntimeError("No active trajectory. Call start() first.")
 
         end_time = datetime.now()
-        duration = (end_time - self.start_time).total_seconds() if self.start_time else 0.0
+        duration = (
+            (end_time - self.start_time).total_seconds() if self.start_time else 0.0
+        )
 
         self.current_trajectory.end_time = end_time.isoformat()
         self.current_trajectory.success = success
