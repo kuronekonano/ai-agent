@@ -33,10 +33,10 @@ jobs:
     - name: Run static checks (ruff + mypy)
       run: |
         uv run ruff check src src/tests
-        cd src && uv run mypy .
+        PYTHONPATH=src uv run mypy src/
 
     - name: Run unit tests
-      run: cd src && uv run pytest tests/
+      run: PYTHONPATH=src uv run pytest src/tests/
 
     - name: Run code formatting check
       run: |
@@ -67,4 +67,4 @@ jobs:
       run: uv run ruff check src
 
     - name: Run mypy type checking
-      run: cd src && uv run mypy .
+      run: PYTHONPATH=src uv run mypy src/
