@@ -1,0 +1,10 @@
+{"id": "case-001", "prompt": "What is the capital of France?", "expected": "Paris"}
+{"id": "case-002", "prompt": "Calculate 2 + 2", "expected": "4"}
+{"id": "case-003", "prompt": "Who wrote 'Romeo and Juliet'?", "expected": "William Shakespeare"}
+{"id": "case-004", "prompt": "What is the largest planet in our solar system?", "expected": "Jupiter"}
+{"id": "case-005", "prompt": "Translate 'hello' to Spanish", "expected": "hola"}
+{"id": "case-006", "prompt": "What year was Python programming language created?", "expected": "1991"}
+{"id": "case-007", "prompt": "Name the seven continents", "expected": "Africa, Antarctica, Asia, Australia, Europe, North America, South America"}
+{"id": "case-008", "prompt": "What is the chemical symbol for gold?", "expected": "Au"}
+{"id": "case-009", "prompt": "Who painted the Mona Lisa?", "expected": "Leonardo da Vinci"}
+{"id": "case-010", "prompt": "What is the square root of 64?", "expected": "8"}
