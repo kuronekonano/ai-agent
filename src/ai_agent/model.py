@@ -101,7 +101,12 @@ class OpenAIClient(AIClient):
                 f"Completion response received, tokens: {response.usage.total_tokens}, "
                 f"duration: {duration_ms:.2f}ms"
             )
-            return response.choices[0].text.strip()
+
+            # Log the raw response content for debugging
+            raw_text = response.choices[0].text
+            logger.debug(f"📝 [MODEL RAW OUTPUT] Raw model response: {raw_text}")
+
+            return raw_text.strip()
 
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000
@@ -148,7 +153,12 @@ class OpenAIClient(AIClient):
                 f"Chat response received, tokens: {response.usage.total_tokens}, "
                 f"duration: {duration_ms:.2f}ms"
             )
-            return response.choices[0].message.content.strip()
+
+            # Log the raw response content for debugging
+            raw_content = response.choices[0].message.content
+            logger.debug(f"📝 [MODEL RAW OUTPUT] Raw model response: {raw_content}")
+
+            return raw_content.strip()
 
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000

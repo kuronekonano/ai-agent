@@ -54,7 +54,29 @@ class CalculatorTool(Tool):
             self._record_tool_usage(operation, start_time, success)
 
     def get_description(self) -> str:
-        return "calculator: Perform mathematical calculations - add(a, b), subtract(a, b), multiply(a, b), divide(a, b), power(base, exponent), sqrt(number), evaluate(expression)"
+        return """calculator: Perform mathematical calculations
+
+OPERATIONS:
+• add(a, b) - Add two numbers
+• subtract(a, b) - Subtract b from a  
+• multiply(a, b) - Multiply two numbers
+• divide(a, b) - Divide a by b
+• power(base, exponent) - Raise base to exponent
+• sqrt(number) - Square root
+• evaluate(expression) - Basic arithmetic only
+
+CRITICAL RULES:
+1. evaluate() ONLY accepts: numbers, +, -, *, /, ., ()
+2. evaluate() REJECTS: functions, variables, letters
+3. For sqrt/power, use their specific operations
+
+FORMAT EXAMPLES:
+✓ CORRECT: {"operation": "sqrt", "number": 2}
+✓ CORRECT: {"operation": "evaluate", "expression": "(3+5)*2"}
+✗ WRONG: {"operation": "evaluate", "expression": "sqrt(2)"}
+✗ WRONG: {"operation": "evaluate", "expression": "2^3"}
+
+Use specific operations for functions, evaluate only for basic math."""
 
     def _add(self, a: float, b: float) -> float:
         return a + b

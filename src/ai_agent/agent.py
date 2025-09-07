@@ -149,9 +149,7 @@ class ReActEngine:
         logger.debug("Generated thought prompt - 已生成思考提示")
 
         thought = self.client.chat([{"role": "user", "content": thought_prompt}])
-        logger.debug(
-            f"AI thought generated: {thought[:100]}... - AI思考生成: {thought[:]}..."
-        )
+        logger.debug(f"AI🤖 thought generated: {thought[:100]}... - 【AI思考生成】...")
 
         action_decision = self.planner.decide_action(thought, self.tool_registry)
         logger.info(
