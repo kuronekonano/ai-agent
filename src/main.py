@@ -56,10 +56,15 @@ def stats():
     # Setup logging
     setup_logging(config.get("logging", {}))
 
-    agent = ReActEngine(config=config)
+    # Initialize database to load persisted stats
+    db_path = config.get("database", {}).get("path", "data/ai_agent_metrics.json")
+    from ai_agent.database import init_database
+
+    db = init_database(db_path)
 
     try:
-        performance_stats = agent.get_performance_stats()
+        # Get latest performance stats from database
+        performance_stats = db.get_latest_performance_stats()
         if performance_stats:
             visualizer = Visualizer()
             visualizer.show_performance(performance_stats)
@@ -70,10 +75,12 @@ def stats():
             visualizer.show_cost_breakdown(performance_stats)
         else:
             console.print(
-                "[yellow]No performance data available. Run a task first.[/yellow]"
+                "[yellow]No performance data available in database. Run a task first.[/yellow]"
             )
     except Exception as e:
-        console.print(f"[red]Error retrieving performance stats: {e}[/red]")
+        console.print(
+            f"[red]Error retrieving performance stats from database: {e}[/red]"
+        )
 
 
 @app.command()

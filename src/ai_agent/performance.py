@@ -111,7 +111,7 @@ class PerformanceTracker:
 
         self.api_calls.append(record)
 
-        # Save to database
+        # Save to database (only if database is initialized)
         try:
             db = get_database()
             api_call_data = {
@@ -131,6 +131,12 @@ class PerformanceTracker:
             }
             db.save_api_call(api_call_data)
             logger.debug("API call saved to database - API调用已保存到数据库")
+        except RuntimeError as e:
+            if "Database not initialized" in str(e):
+                # Database not ready yet, this is expected during initialization
+                logger.debug("Database not initialized yet, skipping API call save")
+            else:
+                logger.error(f"Failed to save API call to database: {str(e)}")
         except Exception as e:
             logger.error(f"Failed to save API call to database: {str(e)}")
 
@@ -249,6 +255,15 @@ class PerformanceTracker:
             logger.debug(
                 "Performance statistics saved to database - 性能统计已保存到数据库"
             )
+        except RuntimeError as e:
+            if "Database not initialized" in str(e):
+                logger.warning(
+                    "Database not initialized, cannot save performance statistics"
+                )
+            else:
+                logger.error(
+                    f"Failed to save performance statistics to database: {str(e)}"
+                )
         except Exception as e:
             logger.error(f"Failed to save performance statistics to database: {str(e)}")
 

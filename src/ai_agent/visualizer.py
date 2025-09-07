@@ -11,7 +11,7 @@ from rich.tree import Tree
 
 from .analyzer import Analyzer
 from .logger import get_logger
-from .performance import PerformanceTracker
+from .performance import PerformanceTracker, TokenUsage
 from .trajectory import Trajectory, TrajectoryStep
 
 logger = get_logger(__name__)
@@ -313,7 +313,7 @@ class Visualizer:
             cost = cost_tracker.calculate_cost(
                 provider,
                 model,
-                PerformanceTracker.TokenUsage(
+                TokenUsage(
                     prompt_tokens=stats["prompt_tokens"],
                     completion_tokens=stats["completion_tokens"],
                     total_tokens=stats["total_tokens"],

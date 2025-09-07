@@ -126,6 +126,8 @@ class ReActEngine:
                     f"Task completed successfully in {iteration + 1} iterations - 任务在{iteration + 1}次迭代中成功完成"
                 )
                 self.trajectory_recorder.complete(step.result)
+                # Save performance statistics to database
+                self.save_performance_stats_to_db()
                 return step.result
 
             current_state["progress"] = step.observation
@@ -134,6 +136,8 @@ class ReActEngine:
         logger.warning(
             f"Maximum iterations ({self.max_iterations}) reached without completing task - 达到最大迭代次数({self.max_iterations})但未完成任务"
         )
+        # Save performance statistics to database even if task failed
+        self.save_performance_stats_to_db()
         raise RuntimeError("Maximum iterations reached without completing task")
 
     def _execute_step(self, iteration: int, current_state: Dict[str, Any]) -> ReActStep:
