@@ -186,7 +186,7 @@ def create_client(config: Dict[str, Any]) -> AIClient:
     logger.info(f"Creating AI client for provider: {provider}")
 
     if provider == "openai":
-        logger.debug("Creating OpenAI client")
+        logger.debug("Creating OpenAI client - 创建OpenAI客户端")
         return OpenAIClient(
             api_key=config["api_key"],
             model=config.get("model", "deepseek-chat"),

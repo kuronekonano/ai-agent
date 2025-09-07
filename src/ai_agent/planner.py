@@ -14,14 +14,16 @@ class Planner:
 
     def __init__(self, client: AIClient):
         self.client = client  # AI客户端
-        logger.info("Planner initialized with AI client")
+        logger.info("Planner initialized with AI client - 规划器已使用AI客户端初始化")
 
     def generate_thought_prompt(
         self, task: str, progress: str, available_tools: List[str]
     ) -> str:
         """Generate the prompt for the thought phase."""
         """为思考阶段生成提示"""
-        logger.debug(f"Generating thought prompt for task: {task}")
+        logger.debug(
+            f"Generating thought prompt for task: {task} - 为任务生成思考提示: {task}"
+        )
         tools_description = self._format_tools_description(available_tools)
 
         prompt = f"""You are an AI assistant using the ReAct framework. Your task is: {task}
@@ -35,7 +37,7 @@ Think step by step about how to approach this task. Consider what information yo
 Your response should be a clear, concise thought process that will help you decide the next action."""
 
         logger.debug(
-            f"Thought prompt generated, length: {len(prompt)}, content: {prompt}"
+            f"🧠 [PROMPT] Thought prompt generated, length: {len(prompt)}\n📝 Content: {prompt}"
         )
         return prompt
 
@@ -44,7 +46,9 @@ Your response should be a clear, concise thought process that will help you deci
     ) -> Dict[str, Any]:
         """Decide the next action based on the thought process."""
         """根据思考过程决定下一步行动"""
-        logger.debug("Deciding next action based on thought process")
+        logger.debug(
+            "Deciding next action based on thought process - 根据思考过程决定下一步行动"
+        )
         # Get detailed tool descriptions for the action prompt
         detailed_tools = self._format_tools_description(
             tool_registry.get_available_tools()
@@ -70,7 +74,7 @@ Respond in JSON format with:
 }}"""
 
         logger.debug(
-            f"Action prompt generated, length: {len(action_prompt)}, content: {action_prompt}"
+            f"🎯 [PROMPT] Action prompt generated, length: {len(action_prompt)}\n📝 Content: {action_prompt}"
         )
         response = self.client.chat([{"role": "user", "content": action_prompt}])
 
@@ -78,18 +82,24 @@ Respond in JSON format with:
             import json
 
             action_decision = json.loads(response)
-            logger.info(f"Action decision parsed: {action_decision['action']}")
+            logger.info(
+                f"✅ [MODEL] Action decision parsed: {action_decision['action']} - 动作决策已解析: {action_decision['action']}"
+            )
 
             if action_decision["action"] not in tool_registry.get_available_tools() + [
                 "final_answer"
             ]:
                 error_msg = f"Invalid action: {action_decision['action']}"
-                logger.warning(error_msg)
+                logger.warning(
+                    f"Invalid action: {error_msg} - 警告：无效动作: {error_msg}"
+                )
                 raise ValueError(error_msg)
 
             return action_decision
         except (json.JSONDecodeError, ValueError) as e:
-            logger.error(f"Error parsing action decision: {str(e)}")
+            logger.error(
+                f"❌ [ERROR] Error parsing action decision: {str(e)} - 错误：解析动作决策失败: {str(e)}"
+            )
             return {
                 "action": "final_answer",
                 "action_input": {
@@ -121,14 +131,30 @@ Respond in JSON format with:
 
             temp_registry.register_tool("web_search", WebSearchTool())
 
+        if "python_code" in tools:
+            from .tools import PythonCodeTool
+
+            temp_registry.register_tool("python_code", PythonCodeTool())
+
+        if "memory_db" in tools:
+            from .tools import MemoryDBTool
+
+            temp_registry.register_tool("memory_db", MemoryDBTool())
+
         # Get detailed descriptions from the tools themselves
         descriptions = []
         for tool_name in tools:
             try:
                 tool = temp_registry.get_tool(tool_name)
+                logger.debug(
+                    f"Retrieved tool for description: {tool_name} - 已获取工具描述: {tool_name}"
+                )
                 descriptions.append(tool.get_description())
             except ValueError:
                 descriptions.append(tool_name)
+                logger.warning(
+                    f"Tool {tool_name} not found in temporary registry - 警告：工具在临时注册表中未找到: {tool_name}"
+                )
 
         return "\n".join(descriptions)
 
@@ -137,7 +163,9 @@ Respond in JSON format with:
     ) -> str:
         """Reflect on the progress made so far and suggest improvements."""
         """反思到目前为止的进展并提出改进建议"""
-        logger.debug(f"Reflecting on progress for task: {current_task}")
+        logger.debug(
+            f"Reflecting on progress for task: {current_task} - 反思任务进展: {current_task}"
+        )
         reflection_prompt = f"""Review the execution trajectory for the task: {current_task}
 
 Execution steps:
@@ -146,7 +174,7 @@ Execution steps:
 Analyze what has been accomplished, what worked well, and what could be improved. 
 Suggest any changes to the approach for the remaining part of the task."""
 
-        logger.debug("Reflection prompt generated")
+        logger.debug("Reflection prompt generated - 反思提示已生成")
         return self.client.chat([{"role": "user", "content": reflection_prompt}])
 
     def _format_trajectory_for_reflection(

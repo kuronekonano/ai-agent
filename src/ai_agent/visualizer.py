@@ -78,7 +78,7 @@ class Visualizer:
     def show_analysis(self, trajectory: Trajectory):
         """Display analysis of the trajectory."""
         """显示轨迹的分析结果"""
-        logger.info("Showing trajectory analysis")
+        logger.info("Showing trajectory analysis - 显示轨迹分析")
         analysis = self.analyzer.analyze_trajectory(trajectory)
 
         self.console.print(Panel.fit("Performance Analysis", style="bold green"))
@@ -117,7 +117,7 @@ class Visualizer:
             tool_table.add_row(tool, str(count), f"{success_rate:.1f}%")
 
         self.console.print(tool_table)
-        logger.debug("Analysis visualization completed")
+        logger.debug("Analysis visualization completed - 分析可视化完成")
 
     def show_final_result(self, trajectory: Trajectory):
         """Display the final result in a visually appealing format."""
@@ -293,7 +293,7 @@ class Visualizer:
 
             self.console.print(provider_table)
 
-        logger.debug("Performance visualization completed")
+        logger.debug("Performance visualization completed - 性能可视化完成")
 
     def show_cost_breakdown(self, performance_stats: Dict[str, Any]):
         """Display detailed cost breakdown."""

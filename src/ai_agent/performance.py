@@ -69,7 +69,7 @@ class PerformanceTracker:
     def __init__(self):
         self.api_calls: List[APICallRecord] = []
         self.total_token_usage = TokenUsage()
-        logger.debug("PerformanceTracker initialized")
+        logger.debug("PerformanceTracker initialized - 性能跟踪器已初始化")
 
     def record_api_call(
         self,
@@ -130,7 +130,7 @@ class PerformanceTracker:
                 "cost": asdict(self.calculate_cost(provider, model, token_usage)),
             }
             db.save_api_call(api_call_data)
-            logger.debug("API call saved to database")
+            logger.debug("API call saved to database - API调用已保存到数据库")
         except Exception as e:
             logger.error(f"Failed to save API call to database: {str(e)}")
 
@@ -235,7 +235,7 @@ class PerformanceTracker:
     def reset(self):
         """Reset all performance tracking data."""
         """重置所有性能跟踪数据"""
-        logger.debug("Resetting performance tracker")
+        logger.debug("Resetting performance tracker - 重置性能跟踪器")
         self.api_calls.clear()
         self.total_token_usage = TokenUsage()
 
@@ -246,7 +246,9 @@ class PerformanceTracker:
             stats = self.get_statistics()
             db = get_database()
             db.save_performance_stats(stats)
-            logger.debug("Performance statistics saved to database")
+            logger.debug(
+                "Performance statistics saved to database - 性能统计已保存到数据库"
+            )
         except Exception as e:
             logger.error(f"Failed to save performance statistics to database: {str(e)}")
 

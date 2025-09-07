@@ -94,7 +94,7 @@ class ReActEngine:
             from .memory_db import MemoryDBTool
 
             self.tool_registry.register_tool("memory_db", MemoryDBTool())
-            logger.debug("Memory database tool registered - 内存数据库工具已注册")
+            logger.debug("Memory database tool registered - 长期记忆数据库工具已注册")
 
         available_tools = self.tool_registry.get_available_tools()
         logger.info(f"Available tools: {available_tools} - 可用工具: {available_tools}")

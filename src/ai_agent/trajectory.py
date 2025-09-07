@@ -45,7 +45,7 @@ class TrajectoryRecorder:
         self.current_trajectory: Optional[Trajectory] = None  # 当前轨迹
         self.steps: List[TrajectoryStep] = []  # 步骤列表
         self.start_time: Optional[datetime] = None  # 开始时间
-        logger.debug("TrajectoryRecorder initialized")
+        logger.debug("TrajectoryRecorder initialized - 轨迹记录器已初始化")
 
     def start(self, task: str):
         """Start recording a new trajectory."""
@@ -65,13 +65,15 @@ class TrajectoryRecorder:
             total_steps=0,
             duration_seconds=None,
         )
-        logger.debug("New trajectory created")
+        logger.debug("New trajectory created - 新轨迹已创建")
 
     def record_step(self, step_data: Any):
         """Record a single execution step."""
         """记录单个执行步骤"""
         if not self.current_trajectory:
-            logger.error("No active trajectory. Call start() first.")
+            logger.error(
+                "No active trajectory. Call start() first. - 没有活动轨迹。请先调用start()。"
+            )
             raise RuntimeError("No active trajectory. Call start() first.")
 
         step = TrajectoryStep(
@@ -93,7 +95,9 @@ class TrajectoryRecorder:
         """Mark the trajectory as completed and save to database."""
         """标记轨迹为已完成并保存到数据库"""
         if not self.current_trajectory:
-            logger.error("No active trajectory. Call start() first.")
+            logger.error(
+                "No active trajectory. Call start() first. - 没有活动轨迹。请先调用start()。"
+            )
             raise RuntimeError("No active trajectory. Call start() first.")
 
         end_time = datetime.now()
@@ -112,7 +116,7 @@ class TrajectoryRecorder:
             if trajectory_dict:
                 db = get_database()
                 db.save_trajectory(trajectory_dict)
-                logger.debug("Trajectory saved to database")
+                logger.debug("Trajectory saved to database - 轨迹已保存到数据库")
         except Exception as e:
             logger.error(f"Failed to save trajectory to database: {str(e)}")
 
@@ -156,7 +160,7 @@ class TrajectoryRecorder:
         """将轨迹保存到JSON文件"""
         trajectory_json = self.to_json()
         if not trajectory_json:
-            logger.error("No trajectory to save")
+            logger.error("No trajectory to save - 没有要保存的轨迹")
             raise RuntimeError("No trajectory to save")
 
         with open(filepath, "w", encoding="utf-8") as f:
@@ -195,7 +199,7 @@ class TrajectoryRecorder:
     def reset(self):
         """Reset the trajectory recorder."""
         """重置轨迹记录器"""
-        logger.debug("Resetting trajectory recorder")
+        logger.debug("Resetting trajectory recorder - 重置轨迹记录器")
         self.current_trajectory = None
         self.steps = []
         self.start_time = None

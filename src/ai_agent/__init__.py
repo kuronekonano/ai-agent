@@ -14,7 +14,14 @@ from .logger import get_logger, setup_logging
 from .model import AIClient, OpenAIClient
 from .performance import APICallRecord, CostCalculation, PerformanceTracker, TokenUsage
 from .planner import Planner
-from .tools import CalculatorTool, FileTool, ToolRegistry, WebSearchTool
+from .tools import (
+    CalculatorTool,
+    FileTool,
+    MemoryDBTool,
+    PythonCodeTool,
+    ToolRegistry,
+    WebSearchTool,
+)
 from .trajectory import Trajectory, TrajectoryRecorder
 from .visualizer import Visualizer
 
@@ -57,6 +64,8 @@ __all__ = [
     "FileTool",
     "CalculatorTool",
     "WebSearchTool",
+    "PythonCodeTool",
+    "MemoryDBTool",
     "Trajectory",
     "TrajectoryRecorder",
     "Analyzer",
