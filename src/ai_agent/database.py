@@ -5,9 +5,10 @@ Provides centralized data persistence for performance statistics, trajectories, 
 
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from tinydb import Query, TinyDB
+from tinydb.database import Document
 from tinydb.middlewares import CachingMiddleware
 from tinydb.storages import JSONStorage
 
@@ -53,17 +54,17 @@ class DatabaseManager:
         logger.debug(f"Trajectory saved with ID: {doc_id}")
         return doc_id
 
-    def get_trajectory(self, doc_id: int) -> Optional[Dict[str, Any]]:
+    def get_trajectory(self, doc_id: int) -> Union[Document, List[Document], None]:
         """Retrieve a trajectory by its document ID."""
         """通过文档ID检索轨迹"""
         return self.trajectories_table.get(doc_id=doc_id)
 
-    def get_all_trajectories(self) -> List[Dict[str, Any]]:
+    def get_all_trajectories(self) -> List[Document]:
         """Retrieve all trajectories from the database."""
         """从数据库检索所有轨迹"""
         return self.trajectories_table.all()
 
-    def get_trajectories_by_task(self, task_pattern: str) -> List[Dict[str, Any]]:
+    def get_trajectories_by_task(self, task_pattern: str) -> List[Document]:
         """Retrieve trajectories matching a task pattern."""
         """检索匹配任务模式的轨迹"""
         Trajectory = Query()
@@ -87,7 +88,7 @@ class DatabaseManager:
             return None
         return max(all_stats, key=lambda x: x.get("timestamp", ""))
 
-    def get_all_performance_stats(self) -> List[Dict[str, Any]]:
+    def get_all_performance_stats(self) -> List[Document]:
         """Retrieve all performance statistics."""
         """检索所有性能统计信息"""
         return self.performance_table.all()
@@ -109,13 +110,13 @@ class DatabaseManager:
         logger.debug(f"Bulk API calls saved: {len(doc_ids)} records")
         return doc_ids
 
-    def get_api_calls_by_provider(self, provider: str) -> List[Dict[str, Any]]:
+    def get_api_calls_by_provider(self, provider: str) -> List[Document]:
         """Retrieve API calls for a specific provider."""
         """检索特定提供商的API调用"""
         API_Call = Query()
         return self.api_calls_table.search(API_Call.provider == provider)
 
-    def get_api_calls_by_model(self, model: str) -> List[Dict[str, Any]]:
+    def get_api_calls_by_model(self, model: str) -> List[Document]:
         """Retrieve API calls for a specific model."""
         """检索特定模型的API调用"""
         API_Call = Query()
@@ -163,7 +164,6 @@ class DatabaseManager:
         """Get aggregate statistics across all data."""
         """获取所有数据的聚合统计信息"""
         trajectories = self.trajectories_table.all()
-        performance_stats = self.performance_table.all()
         api_calls = self.api_calls_table.all()
         tool_usage = self.tool_usage_table.all()
 

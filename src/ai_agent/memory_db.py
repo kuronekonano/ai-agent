@@ -6,9 +6,9 @@ Provides persistent storage for notes, events, and memories with rich metadata.
 import json
 import os
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from .logger import get_logger
 
@@ -240,7 +240,10 @@ Example usage:
             conn.commit()
 
             # Return the created memory
-            return self._get_memory_by_id(memory_id)
+            memory = self._get_memory_by_id(memory_id)
+            if memory is None:
+                raise ValueError(f"Failed to retrieve created memory with ID {memory_id}")
+            return memory
 
     def read_memory(self, **kwargs) -> Optional[Dict[str, Any]]:
         """Read a specific memory by ID."""

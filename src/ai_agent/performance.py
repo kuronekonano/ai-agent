@@ -3,7 +3,7 @@ Performance tracking module for AI Agent Framework.
 Provides token counting, API call statistics, and cost calculation.
 """
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
