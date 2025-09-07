@@ -91,7 +91,7 @@ class ReActEngine:
             logger.debug("Python code tool registered - Python代码工具已注册")
 
         if tool_config.get("enable_memory_db", True):
-            from .tools import MemoryDBTool
+            from .memory_db import MemoryDBTool
 
             self.tool_registry.register_tool("memory_db", MemoryDBTool())
             logger.debug("Memory database tool registered - 内存数据库工具已注册")
