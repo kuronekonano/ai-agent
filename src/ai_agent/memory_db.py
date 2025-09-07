@@ -242,7 +242,9 @@ Example usage:
             # Return the created memory
             memory = self._get_memory_by_id(memory_id)
             if memory is None:
-                raise ValueError(f"Failed to retrieve created memory with ID {memory_id}")
+                raise ValueError(
+                    f"Failed to retrieve created memory with ID {memory_id}"
+                )
             return memory
 
     def read_memory(self, **kwargs) -> Optional[Dict[str, Any]]:
