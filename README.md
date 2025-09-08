@@ -44,10 +44,13 @@ pip install -e .
 **CLI 方式运行:**
 ```bash
 # 查看帮助
-python -m ai_agent --help
+python -m src.main run --help
 
 # 运行任务
-python -m ai_agent "帮我分析这个项目的代码结构"
+python -m src.main run "帮我分析这个项目的代码结构"
+
+# 查看状态
+python -m src.main stats
 ```
 
 **Python 代码方式:**
@@ -67,7 +70,7 @@ agent = ReActEngine({
 })
 
 # 执行任务
-result = agent.run("请帮我分析这个项目的代码结构并记录重要发现到内存数据库")
+result = agent.run("请帮我分析这个项目的代码结构并记录重要发现")
 print(result)
 
 # 获取执行轨迹和性能统计
