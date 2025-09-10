@@ -43,10 +43,20 @@ class ReActEngine:
         self.tool_registry = ToolRegistry()  # 工具注册表
         self.trajectory_recorder = TrajectoryRecorder()  # 轨迹记录器
 
-        # Initialize database for metrics persistence
+        # Initialize databases
+        # TinyDB for metrics and performance tracking
         db_path = config.get("database", {}).get("path", "data/ai_agent_metrics.json")
         self.database = init_database(db_path)
-        logger.debug("Database initialized for metrics persistence")
+        logger.debug("TinyDB initialized for metrics persistence")
+
+        # SQLite for long-term memory storage
+        memory_db_path = config.get("database", {}).get(
+            "memory_db_path", "data/memory.db"
+        )
+        from .tools.memory_db_manager import init_memory_db
+
+        self.memory_db = init_memory_db(memory_db_path)
+        logger.debug("SQLite memory database initialized")
 
         self.max_iterations = config.get("agent", {}).get(
             "max_iterations", 10
@@ -91,7 +101,7 @@ class ReActEngine:
             logger.debug("Python code tool registered - Python代码工具已注册")
 
         if tool_config.get("enable_memory_db", True):
-            from .memory_db import MemoryDBTool
+            from .tools.memory_db import MemoryDBTool
 
             self.tool_registry.register_tool("memory_db", MemoryDBTool())
             logger.debug("Memory database tool registered - 长期记忆数据库工具已注册")
@@ -235,8 +245,22 @@ class ReActEngine:
         """将当前性能统计信息保存到数据库"""
         try:
             # Get performance tracker from client and save stats
-            if hasattr(self.client, "performance_tracker"):
-                self.client.performance_tracker.save_statistics_to_db()
-                logger.debug("Performance statistics saved to database")
+            self.client.performance_tracker.save_statistics_to_db()
+            logger.debug("Performance statistics saved to database")
         except Exception as e:
             logger.error(f"Failed to save performance statistics to database: {str(e)}")
+
+    def close(self):
+        """Close all database connections to ensure data is flushed to disk."""
+        """关闭所有数据库连接以确保数据刷新到磁盘"""
+        try:
+            self.database.close()
+            logger.debug("TinyDB connection closed and data flushed")
+        except Exception as e:
+            logger.error(f"Failed to close TinyDB: {str(e)}")
+
+        try:
+            self.memory_db.close()
+            logger.debug("SQLite memory database connection closed")
+        except Exception as e:
+            logger.error(f"Failed to close SQLite memory database: {str(e)}")

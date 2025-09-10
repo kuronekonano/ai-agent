@@ -30,6 +30,14 @@ def run(task: str = typer.Argument(..., help="The task for the AI agent to execu
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         raise typer.Exit(1)
+    finally:
+        # Ensure database connections are closed
+        try:
+            agent.close()
+        except Exception as e:
+            console.print(
+                f"[yellow]Warning: Failed to close database connections: {e}[/yellow]"
+            )
 
 
 @app.command()

@@ -220,10 +220,27 @@ class DatabaseManager:
         logger.warning("All database data cleared")
 
     def close(self):
-        """Close the database connection."""
-        """关闭数据库连接"""
+        """Close the database connection and flush any cached data."""
+        """关闭数据库连接并刷新缓存数据"""
+        try:
+            # Ensure any cached data is flushed before closing
+            if hasattr(self.db.storage, "flush"):
+                self.db.storage.flush()
+                logger.debug("Database cache flushed to disk")
+        except Exception as e:
+            logger.error(f"Failed to flush database cache: {str(e)}")
+
         self.db.close()
         logger.debug("Database connection closed")
+
+    def flush(self):
+        """Flush any cached data to disk."""
+        """将缓存数据刷新到磁盘"""
+        try:
+            self.db.storage.flush()
+            logger.debug("Database cache flushed to disk")
+        except Exception as e:
+            logger.error(f"Failed to flush database cache: {str(e)}")
 
     def __enter__(self):
         """Context manager entry."""

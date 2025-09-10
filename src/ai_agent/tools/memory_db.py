@@ -1,22 +1,22 @@
 """
-Memory database tool for storing and retrieving data.
-内存数据库工具，用于存储和检索数据
+Memory database tool for storing and retrieving data using SQLite.
+使用SQLite的内存数据库工具，用于存储和检索数据
 """
 
 import time
 from typing import Any, List
 
-from ..database import get_database
 from ..logger import get_logger
 from .base import Tool
+from .memory_db_manager import get_memory_db
 
 logger = get_logger(__name__)
 
 
 class MemoryDBTool(Tool):
-    """Tool for memory database operations."""
+    """Tool for memory database operations using SQLite."""
 
-    """内存数据库操作工具"""
+    """使用SQLite的内存数据库操作工具"""
 
     def execute(self, **kwargs) -> Any:
         operation = kwargs.get("operation")
@@ -56,17 +56,21 @@ class MemoryDBTool(Tool):
         """Store data in the memory database."""
         """在内存数据库中存储数据"""
         logger.debug(f"Storing data with key: {key}")
-        db = get_database()
-        db.store_data(key, value)
-        logger.info(f"Data stored successfully: {key}")
-        return f"Data stored successfully: {key}"
+        db = get_memory_db()
+        success = db.store(key, value)
+        if success:
+            logger.info(f"Data stored successfully: {key}")
+            return f"Data stored successfully: {key}"
+        else:
+            logger.error(f"Failed to store data: {key}")
+            return f"Failed to store data: {key}"
 
     def _retrieve_data(self, key: str) -> Any:
         """Retrieve data from the memory database."""
         """从内存数据库中检索数据"""
         logger.debug(f"Retrieving data with key: {key}")
-        db = get_database()
-        result = db.retrieve_data(key)
+        db = get_memory_db()
+        result = db.retrieve(key)
         if result is None:
             logger.warning(f"Key not found: {key}")
             return f"Key not found: {key}"
@@ -77,16 +81,20 @@ class MemoryDBTool(Tool):
         """Delete data from the memory database."""
         """从内存数据库中删除数据"""
         logger.debug(f"Deleting data with key: {key}")
-        db = get_database()
-        db.delete_data(key)
-        logger.info(f"Data deleted: {key}")
-        return f"Data deleted: {key}"
+        db = get_memory_db()
+        success = db.delete(key)
+        if success:
+            logger.info(f"Data deleted: {key}")
+            return f"Data deleted: {key}"
+        else:
+            logger.error(f"Failed to delete data: {key}")
+            return f"Failed to delete data: {key}"
 
     def _list_keys(self) -> List[str]:
         """List all keys in the memory database."""
         """列出内存数据库中的所有键"""
         logger.debug("Listing all keys in memory database")
-        db = get_database()
+        db = get_memory_db()
         keys = db.list_keys()
         logger.debug(f"Found {len(keys)} keys")
         return keys
@@ -95,7 +103,30 @@ class MemoryDBTool(Tool):
         """Clear all data from the memory database."""
         """清除内存数据库中的所有数据"""
         logger.debug("Clearing all data from memory database")
-        db = get_database()
-        db.clear_data()
-        logger.info("All data cleared from memory database")
-        return "All data cleared from memory database"
+        db = get_memory_db()
+        success = db.clear()
+        if success:
+            logger.info("All data cleared from memory database")
+            return "All data cleared from memory database"
+        else:
+            logger.error("Failed to clear memory database")
+            return "Failed to clear memory database"
+
+    def _record_tool_usage(
+        self, operation: str, start_time: float, success: bool = True
+    ):
+        """Record tool usage statistics."""
+        """记录工具使用统计信息"""
+        duration_ms = (time.time() - start_time) * 1000
+        try:
+            from ..database import get_database
+
+            db = get_database()
+            db.record_tool_usage(
+                tool_name="memory_db",
+                operation=operation,
+                duration_ms=duration_ms,
+                success=success,
+            )
+        except Exception as e:
+            logger.debug(f"Failed to record tool usage: {str(e)}")
